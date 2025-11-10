@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test Psicológico</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wave-background">
+    <div class="wave" id="wave1"></div>
+    <div class="wave" id="wave2"></div>
+    <div class="wave" id="wave3"></div>
+  </div>
+
+  <div class="container">
+    <h1>Test Psicológico de Autoevaluación</h1>
+
+    <p id="nombreUsuario" style="text-align:center; font-weight:bold; color:#3f2b96;"></p>
+
+    <p class="warning">
+      ⚠️ Este test es orientativo y no sustituye la valoración de un profesional.  
+      Si sientes ansiedad, tristeza profunda o pensamientos negativos, busca ayuda profesional inmediata.
+    </p>
+
+    <form id="testForm">
+      <div class="question">
+        <p>1. ¿Con frecuencia te sientes triste o sin motivación?</p>
+        <label><input type="radio" name="q1" value="3"> Sí, casi siempre</label>
+        <label><input type="radio" name="q1" value="2"> A veces</label>
+        <label><input type="radio" name="q1" value="1"> Rara vez</label>
+      </div>
+
+      <div class="question">
+        <p>2. ¿Tienes dificultad para concentrarte o tomar decisiones?</p>
+        <label><input type="radio" name="q2" value="3"> Sí, muy seguido</label>
+        <label><input type="radio" name="q2" value="2"> A veces</label>
+        <label><input type="radio" name="q2" value="1"> No</label>
+      </div>
+
+      <div class="question">
+        <p>3. ¿Te cuesta dormir o duermes demasiado?</p>
+        <label><input type="radio" name="q3" value="3"> Sí, mucho</label>
+        <label><input type="radio" name="q3" value="2"> A veces</label>
+        <label><input type="radio" name="q3" value="1"> No</label>
+      </div>
+
+      <div class="question">
+        <p>4. ¿Te sientes nervioso, inquieto o en tensión con frecuencia?</p>
+        <label><input type="radio" name="q4" value="3"> Sí, muy seguido</label>
+        <label><input type="radio" name="q4" value="2"> A veces</label>
+        <label><input type="radio" name="q4" value="1"> No</label>
+      </div>
+
+      <div class="question">
+        <p>5. ¿Te cuesta disfrutar las cosas que antes te gustaban?</p>
+        <label><input type="radio" name="q5" value="3"> Sí, mucho</label>
+        <label><input type="radio" name="q5" value="2"> A veces</label>
+        <label><input type="radio" name="q5" value="1"> No</label>
+      </div>
+
+      <div class="buttons">
+        <button type="button" onclick="calcularResultado()">Ver resultado</button>
+        <button type="button" class="reset" onclick="volverInicio()">Volver al inicio</button>
+      </div>
+    </form>
+
+    <div id="resultado"></div>
+  </div>
+
+  <script>
+    const nombre = localStorage.getItem("nombreParticipante");
+    const nombreUsuario = document.getElementById("nombreUsuario");
+
+    if (nombre) {
+      nombreUsuario.innerHTML = `Participante: <span style="color:#000;">${nombre}</span>`;
+    } else {
+      window.location.href = "registro.html";
+    }
+
+    function calcularResultado() {
+      const form = document.getElementById("testForm");
+      const respuestas = new FormData(form);
+      let total = 0;
+      for (const valor of respuestas.values()) total += parseInt(valor);
+
+      if ([...respuestas.keys()].length < 5) {
+        alert("Por favor, responde todas las preguntas antes de ver el resultado.");
+        return;
+      }
+
+      const resultadoDiv = document.getElementById("resultado");
+      let resultadoTexto = "";
+
+      // 👉 Aquí está la parte con el color según el resultado:
+      if (total >= 13) {
+        resultadoTexto = "Posible indicio de depresión o ansiedad.";
+        resultadoDiv.innerHTML = "<h2>" + resultadoTexto + "</h2><p>Te recomendamos hablar con un profesional de la salud mental.</p>";
+        resultadoDiv.className = "alerta";
+      } else if (total >= 8) {
+        resultadoTexto = "Podrías estar experimentando estrés moderado.";
+        resultadoDiv.innerHTML = "<h2>" + resultadoTexto + "</h2><p>Procura descansar, hablar con alguien y cuidar tu salud mental.</p>";
+        resultadoDiv.className = "moderado";
+      } else {
+        resultadoTexto = "Tu estado emocional parece estable.";
+        resultadoDiv.innerHTML = "<h2>" + resultadoTexto + "</h2><p>Aun así, es importante cuidar tu bienestar mental.</p>";
+        resultadoDiv.className = "bien";
+      }
+
+      guardarResultado(nombre, resultadoTexto);
+    }
+
+    function guardarResultado(nombre, resultadoTexto) {
+      let registros = JSON.parse(localStorage.getItem("resultadosTest")) || [];
+      const fecha = new Date().toLocaleString();
+      registros.push({ nombre, resultado: resultadoTexto, fecha });
+      localStorage.setItem("resultadosTest", JSON.stringify(registros));
+    }
+
+    // 🔹 Redirige al inicio (registro.html)
+    function volverInicio() {
+      localStorage.removeItem("nombreParticipante");
+      window.location.href = "registro.html";
+    }
+  </script>
+</body>
+</html>
